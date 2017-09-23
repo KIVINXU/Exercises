@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>弹幕墙</title>
+  <style type="text/css">
+    .dm {
+      width: 100%;
+      height: 388px;
+    }
+    .dm .dm-text {
+      margin: 20px;
+      height: 350px;
+      border: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
+    }
+    .dm-text span {
+      position: absolute;
+    }
+    .send {
+      text-align: center;
+    }
+    .send .send-content input{
+      width: 400px;
+      height: 28px;
+      padding-left: 10px;
+    }
+    .send .send-button button{
+      width: 150px;
+      height: 28px;
+      border: 1px solid gray;
+      color: gray;
+      background-color: #fff;
+      margin-top: 15px;
+    }
+    .send .send-button button:first-child {
+      margin-right: 10px;
+      border: 1px solid red;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+<div class="dm">
+  <div class="dm-text"></div>
+  <div class="send">
+    <div class="send-content">
+      <input type="text" placeholder="请说点什么">
+    </div>
+    <div class="send-button">
+      <button>发射</button>
+      <button>清屏</button>
+    </div>
+  </div>
+</div>
+
+<script src="jquery-1.11.1.js"></script>
+<script>
+  $(function () {
+    var arr = [];
+    $('.send-button button:first-child').click(function () {
+      var text = $('.send-content>input').val();
+      arr.push(text);
+      $('.send-content>input').val('');
+    });
+    //按键点击事件
+    $('.send-content>input').keypress(function (e) {
+      if(e.keyCode == '13'){
+        $('.send-button button:first-child').click();
+      }
+    });
+    //按键清除事件
+    $('.send-button button:last-child').click(function () {
+      arr = [];
+      $('.dm-text').empty();
+    });
+    //按时间规则显示弹幕
+    var topMin = $('.dm-text').offset().top;
+    var topMax = topMin + $('.dm-text').height();
+    //弹幕移动函数
+    function move(dm) {
+      var dmLeft = $('.dm-text').width() - dm.width();
+      var dmTop = Math.floor((topMax - topMin) * Math.random());
+      dm.css({
+        left: dmLeft,
+        top: dmTop,
+        color: getRandomColor()
+      });
+      var time = 20000 + 10000 * Math.random();
+      dm.animate({
+        left: '-' + dmLeft + 'px'
+      }, time, function () {
+        dm.remove();
+      });
+    }
+      //随机颜色函数
+      function getRandomColor() {
+        return '#' + ('00000'+(Math.random()*0x1000000<<0).toString(16)).slice(-6);
+      }
+      //自动插入弹幕
+      function getDm() {
+        if(arr.length > 0) {
+          var n = parseInt(Math.random() * arr.length);
+          var dmText = $('<span>' + arr[n] + '</span>');
+          $('.dm-text').append(dmText);
+          move(dmText);
+        }
+        setTimeout(getDm, 3000);
+      }
+      getDm();
+    
+  });
+</script>
+</body>
+</html>
